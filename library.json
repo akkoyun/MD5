@@ -24,10 +24,10 @@
 	},
 	"examples": [
 		{
-			"name": "Variable_Test",
-			"base": "examples/Variable_Test",
+			"name": "Hash",
+			"base": "examples/Hash",
 			"files": [
-				"Variable_Test.ino"
+				"Hash.ino"
 			]
 		}
 	]

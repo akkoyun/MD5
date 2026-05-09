@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Arduino](https://img.shields.io/badge/Platform-Arduino-blue.svg)](https://www.arduino.cc)
-![Version](https://img.shields.io/badge/Version-1.2.0-blue.svg)
+![Version](https://img.shields.io/badge/Version-1.3.0-blue.svg)
 
 Lightweight, low-RAM, heap-free MD5 library for Arduino and embedded targets.
 

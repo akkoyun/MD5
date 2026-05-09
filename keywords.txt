@@ -1,14 +1,23 @@
 #######################################
-# Syntax Coloring Map For <Library_Name>
+# Syntax Coloring Map For MD5
 #######################################
 
 #######################################
 # Datatypes (KEYWORD1)
 #######################################
 
+MD5	KEYWORD1
+
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
+
+Update	KEYWORD2
+Finalize	KEYWORD2
+Hash	KEYWORD2
+Digest	KEYWORD2
+Reset	KEYWORD2
+Process	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)

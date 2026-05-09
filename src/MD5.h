@@ -10,9 +10,9 @@
 #include <stddef.h>
 
 #if defined(__GNUC__) || defined(__clang__)
-	#define MD5_FORCE_INLINE __attribute__((always_inline)) inline
+	#define MD5_NOINLINE __attribute__((noinline))
 #else
-	#define MD5_FORCE_INLINE inline
+	#define MD5_NOINLINE
 #endif
 
 #define MD5_F(x, y, z)      ((z) ^ ((x) & ((y) ^ (z))))
@@ -40,7 +40,7 @@ class MD5 {
 
 	private:
 
-		uint64_t _Lo;
+		uint32_t _Lo;
 		uint32_t _StateA;
 		uint32_t _StateB;
 		uint32_t _StateC;
@@ -48,7 +48,7 @@ class MD5 {
 
 		uint8_t _Buffer[64];
 
-		MD5_FORCE_INLINE const void* Process(const void* data, size_t length) {
+		MD5_NOINLINE const void* Process(const void* data, size_t length) {
 			const uint8_t* ptr = (const uint8_t*)data;
 
 			uint32_t a = this->_StateA;
@@ -174,7 +174,7 @@ class MD5 {
 				return;
 			}
 
-			uint64_t saved_lo = this->_Lo;
+			uint32_t saved_lo = this->_Lo;
 			uint32_t used;
 			uint32_t free_space;
 
@@ -183,7 +183,7 @@ class MD5 {
 			}
 			this->_Lo = saved_lo + size;
 
-			used = (uint32_t)(saved_lo & 0x3f);
+			used = saved_lo & 0x3f;
 
 			if (used) {
 				free_space = 64U - used;
@@ -201,7 +201,7 @@ class MD5 {
 			}
 
 			if (size >= 64) {
-				data = this->Process(data, size & ~(size_t)0x3f);
+				data = this->Process(data, size & ~(uint32_t)0x3f);
 				size &= 0x3f;
 			}
 
@@ -230,7 +230,7 @@ class MD5 {
 
 			memset(&this->_Buffer[used], 0, free_space - 8);
 
-			uint64_t bits = this->_Lo << 3;
+			uint64_t bits = (uint64_t)this->_Lo << 3;
 			this->_Buffer[56] = (uint8_t)(bits);
 			this->_Buffer[57] = (uint8_t)(bits >> 8);
 			this->_Buffer[58] = (uint8_t)(bits >> 16);
@@ -290,12 +290,19 @@ class MD5 {
 				return;
 			}
 
-			static const char digits[17] = "0123456789abcdef";
-
+#ifdef __AVR__
+			static const char digits[] PROGMEM = "0123456789abcdef";
 			for (int i = 0; i < 16; ++i) {
-				digest[i * 2] = digits[hash[i] >> 4];
+				digest[i * 2]       = (char)pgm_read_byte(&digits[hash[i] >> 4]);
+				digest[(i * 2) + 1] = (char)pgm_read_byte(&digits[hash[i] & 0x0F]);
+			}
+#else
+			static const char digits[17] = "0123456789abcdef";
+			for (int i = 0; i < 16; ++i) {
+				digest[i * 2]       = digits[hash[i] >> 4];
 				digest[(i * 2) + 1] = digits[hash[i] & 0x0F];
 			}
+#endif
 
 			digest[32] = 0;
 		}

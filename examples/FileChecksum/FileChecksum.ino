@@ -69,26 +69,23 @@ void setup() {
 	Serial.println(file_digest);
 	Serial.println();
 
-	// Example 2: Verify file integrity (one-shot method)
-	Serial.println("Example 2: Quick verification with One-shot Method");
-	
-	// Simulate reading entire file at once
-	char file_copy[256];
-	size_t file_len = 0;
-	
-	while (file_len < sizeof(file_copy) - 1) {
-		char ch = (char)pgm_read_byte(&file_data[file_len]);
-		if (ch == '\0') {
-			break;
-		}
-		file_copy[file_len] = ch;
-		file_len++;
+	// Example 2: Verify file integrity (streaming re-hash for comparison)
+	Serial.println("Example 2: Quick verification with Streaming Re-hash");
+
+	// Re-hash in smaller chunks to avoid large stack allocation
+	MD5 md5_verify;
+	const size_t VERIFY_CHUNK = 32;
+	uint8_t verify_buf[VERIFY_CHUNK];
+
+	for (size_t offset = 0; offset < file_size; offset += VERIFY_CHUNK) {
+		size_t to_read = (file_size - offset > VERIFY_CHUNK) ? VERIFY_CHUNK : (file_size - offset);
+		memcpy_P(verify_buf, (const void*)(file_data + offset), to_read);
+		md5_verify.Update(verify_buf, to_read);
 	}
-	file_copy[file_len] = '\0';
-	
+
 	uint8_t quick_hash[16];
-	MD5::Hash(file_copy, file_len, quick_hash);
-	
+	md5_verify.Finalize(quick_hash);
+
 	char quick_digest[33];
 	MD5::Digest(quick_hash, quick_digest);
 	

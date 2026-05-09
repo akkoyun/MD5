@@ -79,20 +79,18 @@ void setup() {
 
 	// Example 3: Streaming binary data
 	Serial.println("Example 3: Streaming binary data chunks");
-	
+
 	MD5 md5;
-	
-	// Simulate reading binary data in chunks
-	uint8_t data[256];
-	
-	// Fill with pattern
-	for (int i = 0; i < 256; i++) {
-		data[i] = (i * 13) & 0xFF;
-	}
-	
-	// Process in 64-byte chunks
+
+	// Process 256 bytes in 64-byte chunks without allocating full buffer
+	uint8_t chunk_buf[64];
+
 	for (int chunk = 0; chunk < 4; chunk++) {
-		md5.Update(&data[chunk * 64], 64);
+		int base = chunk * 64;
+		for (int i = 0; i < 64; i++) {
+			chunk_buf[i] = ((base + i) * 13) & 0xFF;
+		}
+		md5.Update(chunk_buf, 64);
 		Serial.print("Chunk ");
 		Serial.print(chunk + 1);
 		Serial.println(" added");
